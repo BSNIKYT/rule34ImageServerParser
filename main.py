@@ -4,7 +4,7 @@ from modules.downloader import *
 import json
 import time 
 
-# url = 'https://rule34.xxx/index.php?page=post&s=list&tags=texas_%28arknights%29'
+
 format_link = 'https://api.rule34.xxx/index.php?page=dapi&s=post&q=index&tags=cat_ears'
 api_link = 'https://api.rule34.xxx/index.php?page=dapi&s=post&q=index&tags='
 
@@ -34,18 +34,14 @@ def main():
 
     urls = []
     tags = ''
-    # for v in url.split('&'):
-    #     if 'tags' in v:         
-    #     #    tags = v.replace('tags=', '')
-    # tags = formating_tags_list(v.replace('tags=', ''))
+
     _tags = inputUrl()
     tags = formating_tags_list(_tags, ind= 1)
     if tags == '':return f'{red}[ERROR] {red}You have not entered tag(s): _{tags}_ ...{white}'
 
-    # print(tags)
 
     print(f'''\n{'='*10}- GetDownloadFiles -{'='*10}''')
-    count, offset = find_count(f'{api_link}{tags}&pid=0')
+    count, _ = find_count(f'{api_link}{tags}&pid=0')
     print(f'''Count:{count}
 {'-'*15}''')
 
@@ -59,8 +55,7 @@ def main():
     download_links = []
     
     for link in urls:
-            # print(link)
-            # print('Downloading %s ...' % link)
+
             print('\r', end='')
             _data, _download_links = replon__(link)
             
@@ -83,6 +78,4 @@ def main():
 
 
 if __name__ == '__main__':
-    
     main()
-    # main(url)

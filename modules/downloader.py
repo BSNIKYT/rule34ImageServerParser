@@ -16,13 +16,19 @@ turquoise = "\033[36m"
 white = "\033[37m"
 st = "\033[37"
 
+files_extension = {
+'gif': '.gif', 'jpg': '.jpg', 'mp4': '.mp4', 
+'webp': '.webp', 'jpeg': '.jpeg'}
 
-def download(data,):
-  if not os.path.exists('pictures'):
-     os.mkdir('pictures')
+
+def download(data, name_folder = 'pictures'):
+  if not os.path.exists(name_folder):
+     os.mkdir(name_folder)
   wdir = os.getcwd()
-  os.chdir('pictures')
+  os.chdir(name_folder)
   
+
+
 
 
 
@@ -155,7 +161,9 @@ def downloading(url, name_file):
 
 
   except Exception as err:
-    print(f"{violet}[?] ___  (]{err}): {blue}{name_file}{white}  URL: {url[0:ind]}")
+    if '[Errno 28]' in str(err):
+       print('НЕХВАТАЕТ ПАМЯТИ')
+    print(f"{violet}[?] ___  ({err}): {blue}{name_file}{white}  URL: {url[0:ind]}")
     status = f'___ ({err})'
 
   return status

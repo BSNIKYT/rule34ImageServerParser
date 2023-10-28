@@ -1,11 +1,13 @@
 import socket
 from modules.colors import *
+
 import requests
 from bs4 import BeautifulSoup as bs
 from urllib.request import HTTPError
 import urllib
 import http
 import json
+import os
 
 kyes_ = {
 ' '	:'%20', 
@@ -28,6 +30,13 @@ kyes_ = {
 # '`'	:'%60','{'	:'%7B','|'	:'%7C',
 # '}'	:'%7D','~'	:'%7E',' '	:'%7F'
 }
+
+
+def global_tags_txt():
+    pass
+
+
+
 
 def check_link(text):
     if 'https://' in text:
@@ -89,21 +98,23 @@ def formating_tags_list(text, ind = 0):
   return tags
 
 
-def parsing(text):
+def parsing(text, stats = None):
   soup = bs(text, "xml")
   # print(soup)
   # i = 0
   qq = []
   download_links =[]
+  _tags = []
   for tag in soup.find_all('post'):
     try:
         file_url = tag.get('file_url')
         tags     = formating_tags_list(tag.get('tags'), ind= 0)
         _id      = tag.get('id')
         download_links.append(tag.get('file_url'))
+        
     except:
         file_url = None
-        tags = None
+        tags = ''
         _id = None
         download_links.append(None)
     qq.append({f'{tag.get("id")}': {
@@ -111,35 +122,56 @@ def parsing(text):
           'file_url': file_url,
           'tags': tags
         }})
-  # with open('info.json', 'w') as file:json.dump(qq, file, indent=4)
-  return qq, download_links
+    _tags.append(tags)
+  return qq, download_links, _tags
 
 
-def replon__(_url):
+def replon__(_url,tagsStats, _stats):
   data = None
   url = _url
-  data, download_links = [], []
+  data, download_links, __tags = [], [], []
   try:
     r = requests.get(_url)
     r.raw.decode_content = True
     if r.status_code == 403:print(f"{red}[-] {red}403: {url}") 
-    # else:print(f'RequestStatus - {r.status_code}')
     print(f'{green}[{r.status_code}] {violet}Parsing {blue}{_url}{violet} ...{white}')
-    data, download_links = parsing(r.text)
+    
+    data, download_links, tags = parsing(r.text)
 
-  except HTTPError as err_code:print(f"{red}[-] {red}{err_code.code}: {url}")
+
+    if _stats != None:
+        GTI = _stats[1]
+        STATISTICS = _stats[0]
+        a = {'response': 'OK',
+             'data' : {
+              'url' : url,
+              'tags': tagsStats,
+              'len': {
+                  'data': len(data),
+                  'download_links' : len(download_links)  
+              }}}
+        STATISTICS.statistics_format_function_ok(a)
+        GTI.ch_new_tags(input_tags = tags)
+    status_code = 200
+    
+    
+    
+
+  except HTTPError as err_code:
+      status_code = err_code.code
+      print(f"{red}[-] {red}{err_code.code}: {url}")
   except urllib.error.URLError as err_code:
     if "[WinError 10054]" in str(err_code):status_code = 522
     elif "[Errno 99]" in str(err_code):status_code = 524
     elif "[SSL: WRONG_VERSION_NUMBER]" in str(err_code):status_code = 526
     else:status_code = '___'
     print(f"{red}[-] {red}{status_code}: {url}")
-  except http.client.RemoteDisconnected:
+  except http.client.RemoteDisconnected as err_code:
     print(f"{violet}[-] {violet}101: {url}")
-  except ConnectionResetError:
+  except ConnectionResetError as err_code:
     print(f"{violet}[-] {violet}101: {url}")
-  except ValueError as err:
-    print(f"{violet}[?] 102: {url}")
+  except ValueError as err_code:
+    print(f"{violet}[?] ValueError: {url} {err_code}")
   except requests.exceptions.SSLError as err_code:
     if "[WinError 10054]" in str(err_code):status_code = 522
     elif "[Errno 99]" in str(err_code):status_code = 524
@@ -153,10 +185,25 @@ def replon__(_url):
     elif "HTTPSConnectionPool" in str(err_code):status_code = 522
     else:status_code = f'___ ({err_code})'
     print(f"{red}[-] {red}{status_code}: {url}")
-  # except Exception as err:
-  #   print(f"{violet}[?] ___: Exception: {err} | URL:{url}")
+  # except Exception as err_code:
+  #     print(f"{red}[-] {red}UnknownException: {url}")
+  #     status_code = '999'
 
-  return data, download_links
+  if (_stats != None):
+    if (status_code != 200):
+      _stats.statistics_format_function_error(
+        {'response': 'ERROR',
+              'data' : {
+                'url' : url,
+                'tags': tagsStats,
+                'errorInfo' : {
+                    'code' : status_code,
+                    'traceback' : err_code}
+                }
+          })
+      __tags.append('ERROR')
+
+  return data, download_links, __tags
 
 
 def find_count(_url, dev = False):
@@ -166,12 +213,27 @@ def find_count(_url, dev = False):
     soup = bs(r.text, "xml")
 
   count = str(soup).split('''"><post height=""''')[0].split('''" offset="''')[0].split('<posts count="')[1]
-#   offset= str(soup).split('''"><post height=""''')[0].split('''">
-# <post height="''')[0].split(' offset="')[1]
   count = count.replace('"/>','')
-  # # offset= offset.replace('"/>','')
-  # print(count)
   offset = 0
   return int(count), int(offset)
 
-# if __name__ == '__main__':find_count('', dev = True)
+
+if str(os.name) == "nt":
+  dir_pref = "\\"
+else:
+  dir_pref = "/"
+
+
+# def statistics(working_directory):
+    
+#     statictics_file_name = 'statistics.json'
+#     if not os.path.exists(working_directory + dir_pref + statictics_file_name):
+#         with open(statictics_file_name, 'w') as file:
+#           json.dump(list([]), file, indent=4, default=list)
+#           data_load = json.load(file)
+#     else:
+#         with open(statictics_file_name, 'r') as j:
+#           data_load = json.load(j)
+#     # print(data_load)
+    
+        

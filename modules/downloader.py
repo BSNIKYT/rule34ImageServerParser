@@ -4,9 +4,10 @@ from urllib.request import HTTPError
 import os
 from time import sleep
 from modules.functions import check_internet
+from modules.Exceptions import GuardFoundForbiddenElement
 from alive_progress import alive_bar
 
-black = "\033[30m"
+black = "\033[30m" 
 red = "\033[31m"
 green = "\033[32m"
 yellow = "\033[33m"
@@ -21,11 +22,15 @@ files_extension = {
 'webp': '.webp', 'jpeg': '.jpeg'}
 
 
-def download(data, name_folder = 'pictures'):
+def download(data):
+  name_folder = 'pictures'
   if not os.path.exists(name_folder):
      os.mkdir(name_folder)
+
   wdir = os.getcwd()
   os.chdir(name_folder)
+
+
   
 
 
@@ -75,9 +80,11 @@ def download(data, name_folder = 'pictures'):
                         elif status == '999':
                             KeyboardInterruptValue = True
                             break
+                        elif status == '000':
+                            pass
                         else:break
                     else:pass
-                  except Exception as err_:
+                  except Exception:
                     break
         bar()
   os.chdir(wdir)
@@ -135,7 +142,6 @@ def downloading(url, name_file):
       status = f'103' 
 
     else:
-      # print(err_code)
       print('\r', end='')
       err_code = str(err_code).replace('<','').replace('>','').replace('urlopen error ','')
       print(f"{violet}[?] ___ ('{err_code}): {blue}{name_file}{white}  URL: {url[0:ind]}")
@@ -157,6 +163,10 @@ def downloading(url, name_file):
   except KeyboardInterrupt:
     print(f"{red}[!] KeyboardInterrupt: {blue}{name_file}{white}  URL: {url[0:ind]}")
     status = '999'
+  
+  except GuardFoundForbiddenElement:
+    print(f"{red}[-] GuardFoundForbiddenElement: {blue}{name_file}{white}  URL: {url[0:ind]}")
+    status = '000'
   
 
 

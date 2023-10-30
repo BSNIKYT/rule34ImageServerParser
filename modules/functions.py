@@ -1,5 +1,10 @@
+
+import time
 import socket
-from modules.colors import *
+import logging
+from datetime import datetime
+
+if __name__ != '__main__':from modules.colors import *
 
 import requests
 from bs4 import BeautifulSoup as bs
@@ -9,31 +14,26 @@ import http
 import json
 import os
 
+
+starting_script_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+starting_script_time2 = starting_script_time.replace('-','_').replace(' ','_').replace(':','_')
+
+
 kyes_ = {
 ' '	:'%20', 
 '!'	:'%21', 
 '"'	:'%22', 
 '#'	:'%23', 
 '$'	:'%24',
-# '%'	:'%25',
 '&'	:'%26',
 '('	:'%28',
 ')'	:'%29',
 '*'	:'%2A',
-# '-'	:'%2D',
 '.'	:'%2E',
 '/'	:'%2F',
-# ':'	:'%3A',';'	:'%3B','<'	:'%3C','='	:'%3D','>'	:'%3E','?'	:'%3F','@'	:'%40',
-# 'A'	:'%41','B'	:'%42','C'	:'%43','D'	:'%44','E'	:'%45','F'	:'%46','G'	:'%47','H'	:'%48','I'	:'%49','J'	:'%4A',
-# 'K'	:'%4B','L'	:'%4C','M'	:'%4D','N'	:'%4E','O'	:'%4F','P'	:'%50','Q'	:'%51','R'	:'%52','S'	:'%53','T'	:'%54',
-# 'U'	:'%55','V'	:'%56','W'	:'%57','X'	:'%58','Y'	:'%59','Z'	:'%5A','['	:'%5B','\\':'%5C',']'	:'%5D','^'	:'%5E',
-# '`'	:'%60','{'	:'%7B','|'	:'%7C',
-# '}'	:'%7D','~'	:'%7E',' '	:'%7F'
+
 }
 
-
-def global_tags_txt():
-    pass
 
 
 
@@ -84,24 +84,12 @@ def formating_tags_list(text, ind = 0):
 
   if ind == 1:tags = text.replace(' ', '%20')
   else:tags = text.replace(' ', '''
-''')
-  # for i in list(text.split(" ")):
-  #   print(len(list(text.split(" "))))
-  #   if i != '':
-  #       q = q + 1
-  #       if q != len(list(text.split(" "))):
-  #         i + '%20'     
-
-
-  
-  
+''')  
   return tags
 
 
-def parsing(text, stats = None):
+def parsing(text, Guard):
   soup = bs(text, "xml")
-  # print(soup)
-  # i = 0
   qq = []
   download_links =[]
   _tags = []
@@ -110,18 +98,29 @@ def parsing(text, stats = None):
         file_url = tag.get('file_url')
         tags     = formating_tags_list(tag.get('tags'), ind= 0)
         _id      = tag.get('id')
-        download_links.append(tag.get('file_url'))
+
         
     except:
         file_url = None
         tags = ''
         _id = None
-        download_links.append(None)
-    qq.append({f'{tag.get("id")}': {
-          'id': _id,
-          'file_url': file_url,
-          'tags': tags
-        }})
+    
+    tagsOut = []
+    for i in tags.split('\n'):
+      if i != '':tagsOut.append(i)
+    val = Guard.GuardCheck(tagsOut, file_url, _id)
+
+
+
+    if val == True:
+      qq.append({f'{tag.get("id")}': {'id': _id,'file_url': file_url,'tags': tags}})
+      download_links.append(file_url)
+    
+
+
+
+
+
     _tags.append(tags)
   return qq, download_links, _tags
 
@@ -136,7 +135,10 @@ def replon__(_url,tagsStats, _stats):
     if r.status_code == 403:print(f"{red}[-] {red}403: {url}") 
     print(f'{green}[{r.status_code}] {violet}Parsing {blue}{_url}{violet} ...{white}')
     
-    data, download_links, tags = parsing(r.text)
+    try:
+      G = _stats[2]
+    except:G = None
+    data, download_links, tags = parsing(text = r.text, Guard = G)
 
 
     if _stats != None:
@@ -185,9 +187,6 @@ def replon__(_url,tagsStats, _stats):
     elif "HTTPSConnectionPool" in str(err_code):status_code = 522
     else:status_code = f'___ ({err_code})'
     print(f"{red}[-] {red}{status_code}: {url}")
-  # except Exception as err_code:
-  #     print(f"{red}[-] {red}UnknownException: {url}")
-  #     status_code = '999'
 
   if (_stats != None):
     if (status_code != 200):
@@ -224,16 +223,34 @@ else:
   dir_pref = "/"
 
 
-# def statistics(working_directory):
-    
-#     statictics_file_name = 'statistics.json'
-#     if not os.path.exists(working_directory + dir_pref + statictics_file_name):
-#         with open(statictics_file_name, 'w') as file:
-#           json.dump(list([]), file, indent=4, default=list)
-#           data_load = json.load(file)
-#     else:
-#         with open(statictics_file_name, 'r') as j:
-#           data_load = json.load(j)
-#     # print(data_load)
-    
-        
+
+def nameFolder(input_tags, dev = False):
+    if len(input_tags.split(' ')) == 1:
+      nf = str(input_tags.split(' ')[0].replace('%20','_').replace(' ','_'))
+    else:
+      nf = input_tags.replace('%20','_').replace(' ','_')
+    return nf
+
+
+do = os.getcwd()
+def set_logger_settings():
+  py_logger = logging.getLogger(__name__)
+  py_logger.setLevel(logging.INFO)
+
+  s = str(str((str(datetime.now())).split()[1]).split(".")[0]).split(":")[2]
+  m = str(str((str(datetime.now())).split()[1]).split(".")[0]).split(":")[1]
+  h = str(str((str(datetime.now())).split()[1]).split(".")[0]).split(":")[0]
+
+  py_handler = logging.FileHandler(f"{starting_script_time2}.log", mode="w")
+  py_handler.setFormatter(
+    logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
+  py_logger.addHandler(py_handler)
+  os.chdir(do)
+  starting_script_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+  py_logger.info(f"{'='*15}- STARTing script in [{starting_script_time}] -{'='*15}")
+
+  return py_logger,starting_script_time
+
+
+if __name__ == '__main__':
+   print(nameFolder(input()))

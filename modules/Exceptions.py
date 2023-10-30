@@ -1,0 +1,2 @@
+class GuardFoundForbiddenElement(Exception):
+    pass

@@ -20,15 +20,14 @@ def reload_file_config(working_directory):
         q = []
         GuardVal = True
         BlockedTags = [
+            "furry",
             "futanari",
             "erect penis",
             "anthro",
             "presenting_anus",
             "presenting_penis",
             "muscular_male",
-            "1boy",
-            "2boy2",
-            "multiple_boys"
+            "2boys",
         ]
 
 

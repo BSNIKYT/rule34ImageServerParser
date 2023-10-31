@@ -102,8 +102,8 @@ class GlobalTagsInfo():
                     if tag != '':
                         if tag not in tagsOut:
                             tagsOut.append(str(tag))
-        with open(f"GlobalTagsInput.json", "w") as outfile:json.dump(tagsOut, outfile, indent=4)
-        self.logger.info(f'[GlobalTagsInfo] File created [GlobalTagsInput.json]')
+        with open("GlobalTagsInput.json", "w") as outfile:json.dump(tagsOut, outfile, indent=4)
+        self.logger.info('[GlobalTagsInfo] File created [GlobalTagsInput.json]')
         print('File created [GlobalTagsInput.json]')
     
         
@@ -126,15 +126,13 @@ class Statistics():
 
     def statistics_format_function_ok(self, data):
         self.data_stats.append(data)
-        pass
 
     def statistics_format_function_error(self, data):
         self.data_stats.append(data)
-        pass
 
     def writeStats(self):
-        with open(f"statistics.json", "w") as outfile:json.dump(self.data_stats, outfile, indent=4)
-        self.logger.info(f'[Statistics] File created [statistics.json]')
+        with open("statistics.json", "w") as outfile:json.dump(self.data_stats, outfile, indent=4)
+        self.logger.info('[Statistics] File created [statistics.json]')
         print('File created [statistics.json]')
 
 

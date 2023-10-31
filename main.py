@@ -29,10 +29,10 @@ try:
 except FileExistsError:
   os.chdir(f'{working_dir + dir_pref + "logging"}')
   py_logger, starting_script_time = set_logger_settings()
-  pass
+
 except PermissionError:
   py_logger, starting_script_time = set_logger_settings()
-  pass
+
 
 
 
@@ -73,7 +73,7 @@ def main():
 
 
     print(f'''\n{'='*10}- GetDownloadFiles -{'='*10}''')
-    count, offset = find_count(f'{api_link}{tags}&pid=0')
+    count, _ = find_count(f'{api_link}{tags}&pid=0')
     print(f'''Count:{count}
 {'-'*15}''')
     

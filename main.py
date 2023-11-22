@@ -6,6 +6,7 @@ from modules.downloader import *
 from modules.statisticksDEF import Statistics
 from modules.statisticksDEF import GlobalTagsInfo
 from modules.statisticksDEF import Guard
+from modules.statisticksDEF import Config
 
 import json
 import time
@@ -34,29 +35,35 @@ except PermissionError:
     py_logger, starting_script_time = set_logger_settings()
 
 
-def inputUrl():
-    print(format_enter_text)
+def inputUrl(tags):
+    if tags is None:
+        print(format_enter_text)
 
-    tags = input(f'{green}>>> {white}')
-    q = check_link(tags)
-    if tags == '':
-        q = False
-    if not q:
-        while q == False:
-            tags = input(f'{red}>>> {white}')
-            q = check_link(tags)
+    if tags is None:
+        tags = input(f'{green}>>> {white}')
+    else:
+        q = check_link(tags)
+        if tags == '':
+            q = False
+        if not q:
+            while q == False:
+                tags = input(f'{red}>>> {white}')
+                q = check_link(tags)
     check_internet()
     return tags
 
 
-def main():
+def main(input_, REMOTE):
+    py_logger.info(f'[SEP]')
+    py_logger.info(f'[MAIN] {"-"*5} NEW SESSION')
     S = Statistics(working_dir=os.getcwd(), logger=py_logger)
     T = GlobalTagsInfo(py_logger)
     G = Guard(py_logger)
 
-    urls = []
+    urls = []  # $ autopep8 --in-place --aggressive --aggressive main.py
 
-    input_tags = inputUrl()
+    input_tags = inputUrl(input_)
+    print(f'{green}Input Tags: {violet}{input_tags}{white}')
 
     S.statistics_format_function_ok({
         "timestamp": str(datetime.now()).split('.')[0],
@@ -106,6 +113,11 @@ def main():
         except KeyboardInterrupt:
             break
 
+    if not os.path.exists('input'):
+        os.mkdir("input")
+        os.chdir(f'{working_dir + dir_pref + "input"}')
+    os.chdir(f'{working_dir + dir_pref + "input"}')
+
     download_links = list(set(download_links))
 
     name_folder = nameFolder(input_tags)
@@ -123,13 +135,35 @@ def main():
     os.chdir(wdir)
     print(f'''\n{'='*10}- Download -{'='*10}''')
 
+    if REMOTE:
+        ch_download = 'Y'
+    else:
+        ch_download = 'NONE'
+
+    # ПАШОЛ НАХУЙ
+
     if len(download_links) != 0:
-        if input('\nDownload? (Y/N) >>> ') == 'Y':
+        if ch_download != 'Y':
+            if input('\nDownload? (Y/N) >>> ') == 'Y':
+                os.chdir(name_folder)
+                download(download_links, py_logger)
+        else:
             os.chdir(name_folder)
-            download(download_links)
+            download(download_links, py_logger)
     else:
         print(f'{red}[!] There is nothing to download!{white}')
 
+    os.chdir(working_dir)
+
 
 if __name__ == '__main__':
-    main()
+    C = Config(py_logger)
+
+    if C.remote:
+        with open("tags.txt", "r") as file1:
+            for line in file1:
+                main(line.strip(), REMOTE=True)
+    else:
+        main(None, REMOTE=False)
+    
+    input()

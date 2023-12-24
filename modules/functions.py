@@ -41,6 +41,15 @@ kyes_ = {
 
 
 def check_link(text):
+    """
+    Проверяет, является ли переданный текст ссылкой.
+
+    Args:
+        text (str): Текст для проверки.
+
+    Returns:
+        bool: True, если текст не является ссылкой, иначе False.
+    """
     if text != '':
         if 'https://' in text:
             print(
@@ -56,6 +65,9 @@ def check_link(text):
 
 
 def check_internet():
+    """
+    Проверяет наличие подключения к Интернету и ожидает, если подключение отсутствует.
+    """
     host = 'www.google.com'
 
     def is_connected(host):
@@ -80,6 +92,16 @@ def check_internet():
 
 
 def formating_tags_list(text, ind=0):
+    """
+    Форматирует строку тегов для использования в URL.
+
+    Args:
+        text (str): Строка тегов.
+        ind (int, optional): Индикатор форматирования. По умолчанию 0.
+
+    Returns:
+        str: Отформатированная строка тегов.
+    """
     if type(text) != str:
         text = str(text)
     tags = ''
@@ -93,6 +115,17 @@ def formating_tags_list(text, ind=0):
 
 
 def parsing(text, Guard):
+    """
+    Парсит XML-текст, извлекая информацию о тегах и ссылках на изображения.
+
+    Args:
+        text (str): XML-текст для парсинга.
+        Guard: Объект Guard для фильтрации изображений.
+
+    Returns:
+        tuple: Кортеж, содержащий список словарей (информация о каждом изображении),
+               список ссылок для скачивания и список тегов.
+    """
     soup = bs(text, "xml")
     qq = []
     download_links = []
@@ -134,7 +167,18 @@ def parsing(text, Guard):
 
 
 def replon__(_url, tagsStats, _stats):
-    # data = None
+    """
+    Осуществляет HTTP-запрос, обрабатывает полученные данные и вызывает функцию парсинга.
+
+    Args:
+        _url (str): URL для HTTP-запроса.
+        tagsStats: Статистика по тегам.
+        _stats: Объект статистики сессии.
+
+    Returns:
+        tuple: Кортеж, содержащий список словарей (информация о каждом изображении),
+               список ссылок для скачивания и список тегов.
+    """
     url = _url
     data, download_links, __tags = [], [], []
     try:
@@ -230,6 +274,16 @@ def replon__(_url, tagsStats, _stats):
 
 
 def find_count(_url, dev=False):
+    """
+    Определяет количество элементов на странице.
+
+    Args:
+        _url (str): URL страницы для определения количества элементов.
+        dev (bool, optional): Индикатор разработки. По умолчанию False.
+
+    Returns:
+        tuple: Кортеж, содержащий количество элементов и смещение (offset).
+    """
     if not dev:
         r = requests.get(_url)
         soup = bs(r.text, "xml")
@@ -248,6 +302,16 @@ else:
 
 
 def nameFolder(input_tags, dev=False):
+    """
+    Генерирует имя папки на основе введенных тегов.
+
+    Args:
+        input_tags (str): Введенные теги.
+        dev (bool, optional): Индикатор разработки. По умолчанию False.
+
+    Returns:
+        str: Имя папки.
+    """
     if len(input_tags.split(' ')) == 1:
         nf = str(
             input_tags.split(' ')[0].replace(
@@ -262,6 +326,12 @@ do = os.getcwd()
 
 
 def set_logger_settings():
+    """
+    Устанавливает настройки логгера.
+
+    Returns:
+        tuple: Кортеж, содержащий объект логгера и время запуска скрипта.
+    """
     py_logger = logging.getLogger(__name__)
     py_logger.setLevel(logging.INFO)
 
@@ -278,7 +348,17 @@ def set_logger_settings():
 
 
 def check_memory(url, name_file, downloading):
-    # host = 'www.google.com'
+    """
+    Проверяет доступную память устройства.
+
+    Args:
+        url (str): URL для проверки.
+        name_file (str): Имя файла.
+        downloading: Функция для скачивания.
+
+    Returns:
+        None
+    """
 
     def is_memory(url, name_file):
         status = (downloading(url, name_file))

@@ -25,6 +25,13 @@ files_extension = {
 
 
 def download(data, logger):
+    """
+    Загружает изображения из списка URL-адресов.
+
+    Args:
+        data (list): Список URL-адресов изображений для загрузки.
+        logger (Logger): Объект логгера для записи информации о загрузке.
+    """
     name_folder = 'pictures'
     if not os.path.exists(name_folder):
         os.mkdir(name_folder)
@@ -93,6 +100,17 @@ def download(data, logger):
 
 
 def downloading(url, name_file, logger):
+    """
+    Загружает одно изображение из заданного URL-адреса.
+
+    Args:
+        url (str): URL-адрес изображения.
+        name_file (str): Имя файла для сохранения изображения.
+        logger (Logger): Объект логгера для записи информации о загрузке.
+
+    Returns:
+        str: Код состояния, указывающий результат загрузки.
+    """
     url = url.replace(" ", "%20")
 
     if "?size=" in url:

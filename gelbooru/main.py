@@ -11,7 +11,6 @@ from modules.statisticksDEF import Config
 import json
 import time
 
-key_ = '&api_key=6dc4f8164d7211d9c12a960b1f647c8c180fdaa77c19c77af99bda7396ef757e&user_id=1093356'
 
 format_link = 'https://gelbooru.com/index.php?page=dapi&s=post&q=index&tags=cat_ears'
 

@@ -23,6 +23,9 @@ files_extension = {
     'gif': '.gif', 'jpg': '.jpg', 'mp4': '.mp4',
     'webp': '.webp', 'jpeg': '.jpeg'}
 
+opener = urllib.request.build_opener()
+opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+urllib.request.install_opener(opener)
 
 def download(data, logger):
     """

@@ -55,10 +55,6 @@ def check_link(text):
             print(
                 f'{red}[ERROR] {red}You must send tag(s), not a link: _{text}_ ...{white}')
             return False
-        if 'http://' in text:
-            print(
-                f'{red}[ERROR] {red}You must send tag(s), not a link: _{text}_ ...{white}')
-            return False
         return True
     else:
         return False
